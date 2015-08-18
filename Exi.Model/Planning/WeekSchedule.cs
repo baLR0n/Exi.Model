@@ -41,10 +41,46 @@ namespace Exi.Model.Planning
         }
 
         /// <summary>
+        /// Sets a daily pensum.
+        /// </summary>
+        /// <param name="todaysPensum">The todays pensum.</param>
+        /// <param name="dayOfWeek">The day of week.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public void SetDay(List<Pensum> todaysPensum, DayOfWeek dayOfWeek)
+        {
+            switch (dayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    this.SetMonday(todaysPensum);
+                    break;
+                case DayOfWeek.Tuesday:
+                    this.SetTuesday(todaysPensum);
+                    break;
+                case DayOfWeek.Wednesday:
+                    this.SetWednesday(todaysPensum);
+                    break;
+                case DayOfWeek.Thursday:
+                    this.SetThursday(todaysPensum);
+                    break;
+                case DayOfWeek.Friday:
+                    this.SetFriday(todaysPensum);
+                    break;
+                case DayOfWeek.Saturday:
+                    this.SetSaturday(todaysPensum);
+                    break;
+                case DayOfWeek.Sunday:
+                    this.SetSunday(todaysPensum);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(dayOfWeek), dayOfWeek, null);
+            }
+        }
+
+        /// <summary>
         /// Sets the monday.
         /// </summary>
         /// <param name="pensumMonday">The pensum monday.</param>
-        public void SetMonday(List<Pensum> pensumMonday)
+        private void SetMonday(List<Pensum> pensumMonday)
         {
             this.PensumMonday = pensumMonday;
         }
@@ -53,7 +89,7 @@ namespace Exi.Model.Planning
         /// Sets the tuesday.
         /// </summary>
         /// <param name="pensumTuesday">The pensum tuesday.</param>
-        public void SetTuesday(List<Pensum> pensumTuesday)
+        private void SetTuesday(List<Pensum> pensumTuesday)
         {
             this.PensumTuesday = pensumTuesday;
         }
@@ -62,7 +98,7 @@ namespace Exi.Model.Planning
         /// Sets the wednesday.
         /// </summary>
         /// <param name="pensumWednesday">The pensum wednesday.</param>
-        public void SetWednesday(List<Pensum> pensumWednesday)
+        private void SetWednesday(List<Pensum> pensumWednesday)
         {
             this.PensumWednesday = pensumWednesday;
         }
@@ -71,7 +107,7 @@ namespace Exi.Model.Planning
         /// Sets the thursday.
         /// </summary>
         /// <param name="pensumThursday">The pensum thursday.</param>
-        public void SetThursday(List<Pensum> pensumThursday)
+        private void SetThursday(List<Pensum> pensumThursday)
         {
             this.PensumThursday = pensumThursday;
         }
@@ -80,7 +116,7 @@ namespace Exi.Model.Planning
         /// Sets the friday.
         /// </summary>
         /// <param name="pensumFriday">The pensum friday.</param>
-        public void SetFriday(List<Pensum> pensumFriday)
+        private void SetFriday(List<Pensum> pensumFriday)
         {
             this.PensumFriday = pensumFriday;
         }
@@ -89,7 +125,7 @@ namespace Exi.Model.Planning
         /// Sets the saturday.
         /// </summary>
         /// <param name="pensumSaturday">The pensum saturday.</param>
-        public void SetSaturday(List<Pensum> pensumSaturday)
+        private void SetSaturday(List<Pensum> pensumSaturday)
         {
             this.PensumSaturday = pensumSaturday;
         }
@@ -98,7 +134,7 @@ namespace Exi.Model.Planning
         /// Sets the sunday.
         /// </summary>
         /// <param name="pensumSunday">The pensum sunday.</param>
-        public void SetSunday(List<Pensum> pensumSunday)
+        private void SetSunday(List<Pensum> pensumSunday)
         {
             this.PensumSunday = pensumSunday;
         }
@@ -146,6 +182,5 @@ namespace Exi.Model.Planning
         {
             get { return 7 - this.FreeDays.Count(); }
         }
-
     }
 }

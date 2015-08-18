@@ -30,7 +30,7 @@ namespace Exi.Model.Planning
         /// <param name="startDate">The start date.</param>
         /// <param name="deadLine">The dead line.</param>
         /// <param name="freeDays">The days per week which should be free.</param>
-        private void CreateScheduleList(DateTime startDate, DateTime deadLine, IEnumerable<DayOfWeek> freeDays)
+        public void CreateScheduleList(DateTime startDate, DateTime deadLine, IEnumerable<DayOfWeek> freeDays)
         {
             this.StartDate = startDate;
             if (deadLine <= startDate)
