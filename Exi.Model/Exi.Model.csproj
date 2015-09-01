@@ -115,7 +115,7 @@
     <Compile Include="Planning\Pensum.cs" />
     <Compile Include="Planning\Plan.cs" />
     <Compile Include="Planning\ScheduleCreator.cs" />
-    <Compile Include="Planning\WeekSchedule.cs" />
+    <Compile Include="Planning\ScheduleDay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Projects\Exam.cs" />
   </ItemGroup>

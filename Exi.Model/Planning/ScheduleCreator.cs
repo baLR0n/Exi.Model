@@ -8,104 +8,74 @@ namespace Exi.Model.Planning
     public class ScheduleCreator
     {
         /// <summary>
-        /// Creates the schedule list.
+        /// Creates the default schedule list.
+        /// Subjects are planned on after the other. Every day has a pensum.
+        /// The pensum rest is added to the first day(s).
         /// </summary>
         /// <param name="startDate">The start date.</param>
         /// <param name="deadLine">The dead line.</param>
         /// <param name="freeDays">The free days.</param>
         /// <param name="parts">The parts.</param>
         /// <returns></returns>
-        public List<WeekSchedule> CreateScheduleList(DateTime startDate, DateTime deadLine, IEnumerable<DayOfWeek> freeDays, List<IDivisible> parts)
+        public List<ScheduleDay> CreateDefaultScheduleList(DateTime startDate, DateTime deadLine, IEnumerable<DayOfWeek> freeDays, List<IDivisible> parts)
         {
             // Get dates and numbers
-            return this.CreateScheduleBruteForce(startDate, deadLine, freeDays, parts);
-        }
+            int totalParts = parts.Sum(x => x.PartAmount);
+            int weeks = (deadLine.Subtract(startDate).Days / 7);
+            int weekRest = 7 - deadLine.Subtract(startDate.AddDays(weeks * 7)).Days;
+            int dayAmount = deadLine.Subtract(startDate).Days - (freeDays.Count() * weeks) + weekRest;
 
-        /// <summary>
-        /// Creates the schedule brute force.
-        /// </summary>
-        /// <param name="startDate">The start date.</param>
-        /// <param name="freeDays">The free days.</param>
-        /// <param name="parts">The parts.</param>
-        /// <param name="dayAmount">The day amount.</param>
-        /// <returns></returns>
-        private List<WeekSchedule> CreateScheduleBruteForce(DateTime startDate, DateTime deadLine, IEnumerable<DayOfWeek> freeDays, List<IDivisible> parts)
-        {
-            List<WeekSchedule> scheduleList = new List<WeekSchedule>();
-            DateTime currentDate = startDate;
-            WeekSchedule weekSchedule = new WeekSchedule(currentDate, freeDays);
-
-            int partIndex = 0;
-
-            int remainingBits = parts.Sum(x => x.PartAmount);
-            int weeks = (deadLine.Subtract(startDate).Days/7);
-            int weekRest = 7 - deadLine.Subtract(startDate.AddDays(weeks*7)).Days;
-
-            int dayAmount = deadLine.Subtract(startDate).Days - (freeDays.Count()*weeks) + weekRest;
-            int dailyBits = remainingBits/dayAmount;
-
-            if (dailyBits == 0)
+            int[] partsPerSubject = new int[parts.Count];
+            for (int i = 0; i < parts.Count; i++)
             {
-                dailyBits = 1;
+                partsPerSubject[i] = parts[i].PartAmount;
             }
 
-            int pensumRest = remainingBits%dayAmount;
+            int dailyPensum = totalParts / dayAmount;
+            int pensumRest = totalParts % dayAmount;
 
-            do // Fill a pensum week for week until we´re finished.
+            List<ScheduleDay> scheduleList = new List<ScheduleDay>();
+            DateTime currentDate = startDate;
+
+            int currentPartIndex = 0;
+            int currentPartProgress = partsPerSubject[0];
+
+            while (deadLine >= currentDate)
             {
-                List<Pensum> todaysPensum = new List<Pensum>();
+                ScheduleDay day = new ScheduleDay(currentDate);
 
-                // Free day? Next day!
-                if (freeDays.Contains(currentDate.DayOfWeek))
+                if (currentPartProgress - dailyPensum >= 0)
                 {
-                    currentDate = currentDate.AddDays(1);
-                }
-                // Less then daily bits? just the rest.
-                if (remainingBits < dailyBits)
-                {
-                    dailyBits = remainingBits;
-                }
-
-                if (pensumRest > 0)
-                {
-                    todaysPensum.Add(new Pensum(parts[partIndex], dailyBits + 1));
-                    remainingBits -= (dailyBits + 1);
-                    pensumRest--;
+                    day.Pensum.Add(new Pensum(parts[currentPartIndex], dailyPensum));
+                    currentPartProgress -= dailyPensum;
                 }
                 else
                 {
-                    todaysPensum.Add(new Pensum(parts[partIndex], dailyBits));
-                    remainingBits -= dailyBits;
-                }
-
-                // Add this day to the weekly pensum.
-                weekSchedule.SetDay(todaysPensum, currentDate.DayOfWeek);
-
-                // Check if this week is over or if the chapter was completely planned.
-                if (currentDate.DayOfWeek.Equals(this.getLastWorkDay(freeDays)) && partIndex < parts.Count -1)
-                {
-                    // Get ready for next week. Add 1 day to sunday´s date and add the week to the schedule-list.
-                    scheduleList.Add(weekSchedule);
-                    currentDate = currentDate.AddDays(1);
-                    weekSchedule = new WeekSchedule(currentDate, freeDays);
-                }
-                if (remainingBits <= 0)
-                {
-                    // Start next part or finish the planning if no part is left.
-                    if (partIndex >= parts.Count - 1)
+                    // * -1 because the rest value will be negative.
+                    day.Pensum.Add(new Pensum(parts[currentPartIndex], currentPartProgress));
+                    currentPartIndex++;
+                    if (currentPartIndex.Equals(parts.Count))
                     {
-                        scheduleList.Add(weekSchedule);
+                        scheduleList.Add(day);
                         break;
                     }
 
-                    partIndex++;
-                    remainingBits = parts[partIndex].PartAmount;
+                    // Next subject to keep up dailypensum
+                    day.Pensum.Add(new Pensum(parts[currentPartIndex], dailyPensum - currentPartProgress));
+                    currentPartProgress = partsPerSubject[currentPartIndex] - (dailyPensum - currentPartProgress);
                 }
 
-                // Next day!
+                // Add pensum at the start.
+                if (pensumRest > 0)
+                {
+                    day.Pensum.Last().Amount += pensumRest;
+                    currentPartProgress -= pensumRest;
+                    pensumRest = 0;
+                }
+
+                scheduleList.Add(day);
                 currentDate = currentDate.AddDays(1);
-                dayAmount--;
-            } while (dayAmount > 0);
+            }
 
             return scheduleList;
         }

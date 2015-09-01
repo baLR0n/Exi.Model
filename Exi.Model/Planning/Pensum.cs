@@ -18,7 +18,7 @@ namespace Exi.Model.Planning
         /// <value>
         /// The amount.
         /// </value>
-        public int Amount { get; private set; }
+        public int Amount { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the subject.

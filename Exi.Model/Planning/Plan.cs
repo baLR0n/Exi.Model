@@ -21,7 +21,7 @@ namespace Exi.Model.Planning
             this.Project = project;
             this.scheduleCreator = new ScheduleCreator();
 
-            this.WeeklySchedules = new List<WeekSchedule>();
+            this.Schedule = new List<ScheduleDay>();
         }
 
         /// <summary>
@@ -39,23 +39,21 @@ namespace Exi.Model.Planning
             }
 
             this.DeadLine = deadLine;
-            this.WeeklySchedules = this.scheduleCreator.CreateScheduleList(startDate, deadLine, freeDays, this.Project.Parts);
+            this.Schedule = this.scheduleCreator.CreateDefaultScheduleList(startDate, deadLine, freeDays, this.Project.Parts);
         }
 
 
         /// <summary>
-        /// Replaces the schedule starting with the specified start date.
+        /// Replaces the schedule at the specified date.
         /// </summary>
-        /// <param name="startDate">The start date.</param>
+        /// <param name="date">The date.</param>
         /// <param name="newSchedule">The new schedule.</param>
-        public void ReplaceSchedule(DateTime startDate, WeekSchedule newSchedule)
+        public void ReplaceSchedule(DateTime date, ScheduleDay newSchedule)
         {
-            if (this.WeeklySchedules.Any(x => x.StartDate.Equals(startDate)))
+            if (this.Schedule.Any(x => x.Date.Equals(date)))
             {
-                // Replace weekly schedule.
-                this.WeeklySchedules[
-                    this.WeeklySchedules.IndexOf(this.WeeklySchedules.FirstOrDefault(x => x.StartDate.Equals(startDate)))
-                    ] = newSchedule;
+                // Replace schedule day.
+                this.Schedule[this.Schedule.IndexOf(this.Schedule.FirstOrDefault(x => x.Date.Equals(date)))] = newSchedule;
             }
         }
 
@@ -89,6 +87,6 @@ namespace Exi.Model.Planning
         /// <value>
         /// The schedule.
         /// </value>
-        public List<WeekSchedule> WeeklySchedules { get; private set; }
+        public List<ScheduleDay> Schedule { get; private set; }
     }
 }
